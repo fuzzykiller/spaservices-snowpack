@@ -51,5 +51,4 @@ jobs:
         with:
           name: dist
       - name: Publish package to GitHub
-        working-directory: ./out
-        run: dotnet nuget push *.nuget
+        run: dotnet nuget push *.nupkg
