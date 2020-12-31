@@ -1,0 +1,55 @@
+name: CI Build
+
+on: push
+
+env:
+  DOTNET_VERSION: 3.1.301
+  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore -c Release
+      - name: Pack
+        run: dotnet pack --no-build -c Release -o ../out
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: |
+            ./out/*.nupkg
+            ./out/*.snupkg
+  
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    needs: [build]
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+      - name: Publish package to GitHub
+        working-directory: ./out
+        run: dotnet nuget push *.nuget

@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaServices.SnowpackDevServ
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{0DCF744C-7573-445C-BE64-7694B6866EEB}"
 ProjectSection(SolutionItems) = preProject
-	..\.gitlab-ci.yml = ..\.gitlab-ci.yml
+	..\.github\workflows\ci.yml = ..\.github\workflows\ci.yml
 EndProjectSection
 EndProject
 Global
