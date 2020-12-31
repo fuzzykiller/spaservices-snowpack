@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Deterministic>true</Deterministic>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Authors>Daniel Betz</Authors>
+    <Description>Helpers for building single-page applications on ASP.NET Core using Snowpack.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageTags>snowpack usespa aspnetcore spa</PackageTags>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(CI)' != ''">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Include="..\aspnetcore\src\Middleware\SpaServices.Extensions\src\Npm\NpmScriptRunner.cs">
+      <Link>Npm\NpmScriptRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\aspnetcore\src\Middleware\SpaServices.Extensions\src\Util\EventedStreamStringReader.cs">
+      <Link>Util\EventedStreamStringReader.cs</Link>
+    </Compile>
+    <Compile Include="..\aspnetcore\src\Middleware\SpaServices.Extensions\src\Util\LoggerFinder.cs">
+      <Link>Util\LoggerFinder.cs</Link>
+    </Compile>
+    <Compile Include="..\aspnetcore\src\Middleware\SpaServices.Extensions\src\Util\TaskTimeoutExtensions.cs">
+      <Link>Util\TaskTimeoutExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\aspnetcore\src\Middleware\SpaServices.Extensions\src\Util\TcpPortFinder.cs">
+      <Link>Util\TcpPortFinder.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.10" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all"/>
+  </ItemGroup>
+
+</Project>
