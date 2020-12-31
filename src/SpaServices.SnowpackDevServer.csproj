@@ -9,6 +9,10 @@
   </PropertyGroup>
   
   <PropertyGroup>
+    <Version>0.9.0</Version>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <Authors>Daniel Betz</Authors>
     <Description>Helpers for building single-page applications on ASP.NET Core using Snowpack.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
