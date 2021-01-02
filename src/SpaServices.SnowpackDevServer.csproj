@@ -10,7 +10,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <Version>0.9.0</Version>
+    <Version>0.9.1</Version>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -18,10 +18,6 @@
     <Description>Helpers for building single-page applications on ASP.NET Core using Snowpack.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageTags>snowpack usespa aspnetcore spa</PackageTags>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(CI)' != ''">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
   
   <ItemGroup>
