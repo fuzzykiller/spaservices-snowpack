@@ -36,10 +36,10 @@ jobs:
             ./out/*.nupkg
             ./out/*.snupkg
   
-  release:
-    name: Release
+  release_github_packages:
+    name: Release to GitHub Packages
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: startsWith(github.ref, 'refs/tags/version/')
     needs: [build]
     steps:
       - name: Setup .NET
@@ -52,14 +52,14 @@ jobs:
           name: dist
       - name: Publish package to GitHub
         run: |
-          dotnet nuget push *.nupkg --skip-duplicate \
-            --api-key "${{secrets.GITHUB_TOKEN}}" \
+          dotnet nuget push *.nupkg \
+            --api-key "${{ secrets.GITHUB_TOKEN }}" \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
   
   release_nuget:
     name: Release to NuGet.org
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: startsWith(github.ref, 'refs/tags/version/')
     needs: [build]
     steps:
       - name: Setup .NET
@@ -72,6 +72,25 @@ jobs:
           name: dist
       - name: Publish package to NuGet.org
         run: |
-          dotnet nuget push *.nupkg --skip-duplicate \
-            --api-key "${{secrets.NUGET_API_KEY}}" \
+          dotnet nuget push *.nupkg \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
             --source https://api.nuget.org/v3/index.json
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/version/')
+    needs: [release_github_packages, release_nuget]
+    steps:
+      - name: Prepare release
+        id: prepare_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: |
+            * tbd
+          draft: true
+          prerelease: false
