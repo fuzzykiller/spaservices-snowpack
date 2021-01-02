@@ -4,7 +4,6 @@ on: push
 
 env:
   DOTNET_VERSION: 3.1.301
-  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
   build:
@@ -47,10 +46,12 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
       - name: Download build artifacts
         uses: actions/download-artifact@v2
         with:
           name: dist
       - name: Publish package to GitHub
-        run: dotnet nuget push *.nupkg
+        run: |
+          dotnet nuget push *.nupkg --skip-duplicate \
+            --api-key "${{secrets.GITHUB_TOKEN}}" \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
