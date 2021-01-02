@@ -25,6 +25,8 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore -c Release
+#      - name: Test
+#        run: dotnet test --no-build -c Release
       - name: Pack
         run: dotnet pack --no-build -c Release -o ../out
       - name: Upload build artifacts
