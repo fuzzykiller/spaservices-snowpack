@@ -1,7 +1,7 @@
 # SpaServices.SnowpackDevServer
 
 Brings plug'n'play support for Snowpack to ASP.NET Core. [Snowpack](https://www.snowpack.dev)
-is a build tool that enabled lighning-fast development by not packing JS code at all.
+is a build tool that enabled lightning-fast development by not packing JS code at all.
 
 ## Usage:
 
