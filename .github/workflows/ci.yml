@@ -55,3 +55,23 @@ jobs:
           dotnet nuget push *.nupkg --skip-duplicate \
             --api-key "${{secrets.GITHUB_TOKEN}}" \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+  
+  release_nuget:
+    name: Release to NuGet.org
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    needs: [build]
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+      - name: Publish package to NuGet.org
+        run: |
+          dotnet nuget push *.nupkg --skip-duplicate \
+            --api-key "${{secrets.NUGET_API_KEY}}" \
+            --source https://api.nuget.org/v3/index.json
