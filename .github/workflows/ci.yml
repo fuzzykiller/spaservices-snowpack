@@ -3,7 +3,7 @@ name: CI Build
 on: push
 
 env:
-  DOTNET_VERSION: 3.1.301
+  DOTNET_VERSION: 3.1.404
 
 jobs:
   build:
