@@ -19,11 +19,16 @@ is a build tool that enabled lightning-fast development by not packing JS code a
             }
         });
 
+## Known issues
+
+Because `Microsoft.AspNetCore.SpaServices.Extensions` has
+[a bug with forwarding WebSocket connections](https://github.com/dotnet/aspnetcore/issues/23207) in
+ASP.NET Core 3.1, auto-refresh does not work in version 1.0 (for ASP.NET Core 3.1).
+
 ## Copyright
 
 Includes code taken directly from `Microsoft.AspNetCore.SpaServices.Extensions`. This includes
-all source files included from the `aspnetcore` submodule and `EventedStreamReader.cs` (a newer
-version because of critical bugfixes).
+all source files included from the `aspnetcore` submodule.
 
 ## License
 
