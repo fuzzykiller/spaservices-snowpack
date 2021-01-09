@@ -1,4 +1,4 @@
 [submodule "aspnetcore"]
 	path = aspnetcore
 	url = https://github.com/dotnet/aspnetcore
-	branch = release/3.1
+	branch = release/5.0
