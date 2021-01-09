@@ -1,4 +1,4 @@
-/* Copyright 2020 Daniel Betz
+/* Copyright 2021 Daniel Betz
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.NodeServices.Npm;
@@ -23,6 +25,8 @@ using Microsoft.AspNetCore.NodeServices.Util;
 using Microsoft.AspNetCore.SpaServices;
 using Microsoft.AspNetCore.SpaServices.Extensions.Util;
 using Microsoft.AspNetCore.SpaServices.Util;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using static System.FormattableString;
 
@@ -33,22 +37,26 @@ namespace SpaServices.SnowpackDevServer
         private const string LogCategoryName = "SnowpackDevServer";
         private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromSeconds(5);
 
-        public static void Attach(ISpaBuilder spaBuilder, string npmScriptName)
+        public static void Attach(ISpaBuilder spaBuilder, string scriptName)
         {
+            var pkgManagerCommand = spaBuilder.Options.PackageManagerCommand;
             var sourcePath = spaBuilder.Options.SourcePath;
+            var devServerPort = spaBuilder.Options.DevServerPort;
             if (string.IsNullOrEmpty(sourcePath))
             {
                 throw new ArgumentException("Cannot be null or empty", nameof(sourcePath));
             }
 
-            if (string.IsNullOrEmpty(npmScriptName))
+            if (string.IsNullOrEmpty(scriptName))
             {
-                throw new ArgumentException("Cannot be null or empty", nameof(npmScriptName));
+                throw new ArgumentException("Cannot be null or empty", nameof(scriptName));
             }
 
             var appBuilder = spaBuilder.ApplicationBuilder;
+            var applicationStoppingToken = appBuilder.ApplicationServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
             var logger = LoggerFinder.GetOrCreateLogger(appBuilder, LogCategoryName);
-            var portTask = StartSnowpackServerAsync(sourcePath, npmScriptName, logger);
+            var diagnosticSource = appBuilder.ApplicationServices.GetRequiredService<DiagnosticSource>();
+            var portTask = StartSnowpackServerAsync(sourcePath, scriptName, pkgManagerCommand, devServerPort, logger, diagnosticSource, applicationStoppingToken);
 
             var targetUriTask = portTask.ContinueWith(task => new UriBuilder("http", "localhost", task.Result).Uri);
 
@@ -61,27 +69,32 @@ namespace SpaServices.SnowpackDevServer
             });
         }
 
-        private static async Task<int> StartSnowpackServerAsync(string sourcePath, string npmScriptName, ILogger logger)
+        private static async Task<int> StartSnowpackServerAsync(
+            string sourcePath, string scriptName, string pkgManagerCommand, int portNumber, ILogger logger, DiagnosticSource diagnosticSource, CancellationToken applicationStoppingToken)
         {
-            var portNumber = TcpPortFinder.FindAvailablePort();
+            if (portNumber == 0)
+            {
+                portNumber = TcpPortFinder.FindAvailablePort();
+            }
+
             logger.LogInformation($"Starting Snowpack server on port {portNumber}...");
 
-            var npmScriptRunner =
-                new NpmScriptRunner(sourcePath, npmScriptName,
-                    Invariant($"--open none --output stream --port {portNumber}"), null);
-            npmScriptRunner.AttachToLogger(logger);
+            var scriptRunner =
+                new NodeScriptRunner(sourcePath, scriptName,
+                    Invariant($"--open none --output stream --port {portNumber}"), null, pkgManagerCommand, diagnosticSource, applicationStoppingToken);
+            scriptRunner.AttachToLogger(logger);
 
-            using (var stdErrReader = new EventedStreamStringReader(npmScriptRunner.StdOut))
+            using (var stdErrReader = new EventedStreamStringReader(scriptRunner.StdOut))
             {
                 try
                 {
-                    await npmScriptRunner.StdOut.WaitForMatch(
+                    await scriptRunner.StdOut.WaitForMatch(
                         new Regex("Server started", RegexOptions.None, RegexMatchTimeout));
                 }
                 catch (EndOfStreamException ex)
                 {
                     throw new InvalidOperationException(
-                        $"The NPM script '{npmScriptName}' exited without indicating that the " +
+                        $"The NPM script '{scriptName}' exited without indicating that the " +
                         $"snowpack server was listening for requests. The error output was: " +
                         $"{stdErrReader.ReadAsString()}", ex);
                 }
