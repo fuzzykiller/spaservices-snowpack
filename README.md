@@ -4,7 +4,7 @@
 [![Nuget](https://img.shields.io/nuget/v/SpaServices.SnowpackDevServer)](https://www.nuget.org/packages/SpaServices.SnowpackDevServer)
 
 Brings plug'n'play support for Snowpack to ASP.NET Core. [Snowpack](https://www.snowpack.dev)
-is a build tool that enabled lightning-fast development by not packing JS code at all.
+is a build tool that enables lightning-fast development by not packing JS code at all.
 
 ## Usage:
 
